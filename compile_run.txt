@@ -1,0 +1,16 @@
+javac -source 1.8 -target 1.8 -parameters -encoding ISO-8859-1 -sourcepath src -cp obj -g -proc:none -Xlint:none -nowarn -O -d obj src/net/murat/rajaext/RajaRayTracerGUI.java
+
+java -cp obj net.murat.rajaext.RajaRayTracerGUI
+
+Or jarring:
+jar cvmf MANIFEST.MF bin/rajagui.jar -C obj . -C . src images scenes textures compile_run.txt
+
+java -jar bin/rajagui.jar &
+
+For showing image outside of application:
+feh images/image.png
+
+Create Documentation:
+javadoc -cp libs/oldraja.jar -Xdoclint:all,-missing,-accessibility -quiet -d doc -sourcepath src -encoding ISO-8859-1 -charset UTF-8 -docencoding UTF-8 -windowtitle "Extended Java Raja Documentation" -doctitle "Java 8 Extended Raja Ray Tracing" -header "Raja" -subpackages net.murat
+
+javadoc -cp libs/oldraja.jar -Xdoclint:all,-missing,-accessibility -quiet -d doc -sourcepath src -encoding ISO-8859-1 -charset UTF-8 -docencoding UTF-8 -windowtitle "Extended Java Raja Documentation" -doctitle "Java 8 Extended Raja Ray Tracing" -header "Raja" -subpackages raja

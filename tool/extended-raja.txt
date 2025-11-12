@@ -1,0 +1,114 @@
+# **Raja-Extended: A Respectful and Legal Extension of the Raja Ray Tracer**
+
+> *"Extending with care, licensing with respect."*
+
+---
+
+## 🙏 Acknowledgements
+
+We extend our deepest gratitude to **Master Paul Bourke** for gifting the world with the **Raja Ray Tracer** — a beautifully crafted, mathematically rigorous, and educationally invaluable ray tracing implementation first released in 2001.
+
+**Raja-Extended** is a modest enhancement of this timeless work, developed **without modifying a single line** of the original code. New features are added exclusively through **new, independent source files**, preserving the integrity and spirit of the original project.
+
+---
+
+## 🎯 Project Philosophy
+
+- **Original code remains untouched**: Every file authored by Paul Bourke is included **exactly as published**, with no alterations whatsoever.  
+- **Additive-only approach**: New shapes (e.g., `Cone`, `Torus`), materials (e.g., `Dielectric`), and lights (e.g., `SpotLight`) are implemented in **brand-new files**.  
+- **Minimal and respectful growth**: The extension stays true to Raja’s core values: **simplicity, correctness, and clarity**.  
+- **Community-first**: Released as free and open-source software to empower learners, educators, and developers worldwide.
+
+---
+
+## ⚖️ Licensing and Legal Framework
+
+### 1. **Original Raja Code**
+- **Author**: Paul Bourke (2001)  
+- **License Terms**:  
+  > *"Free for non-commercial use. Attribution appreciated."*  
+- **Scope**: `Scene.java`, `Renderer.java`, `Ray.java`, and all other original files.  
+- **Status**: These files are **unchanged** and distributed under Paul Bourke’s original terms.
+
+### 2. **New Extension Code**
+- **Author**: Murat İnan  
+- **License**: **GNU General Public License v2.0 (GPLv2)**  
+- **Scope**: `Cone.java`, `Torus.java`, `DielectricMaterial.java`, `SpotLight.java`, etc.  
+- **Note**: These files are **independently authored** and only interact with the original code through public interfaces (e.g., scene structure).
+
+### 3. **Distribution Model: “Mere Aggregation”**
+- This project constitutes a **mere aggregation** of two separately licensed works.  
+- The **GPLv2 applies only to new files** and **does not extend** to Paul Bourke’s original code.  
+- This approach is **explicitly permitted** by the Free Software Foundation (FSF) and aligns with open-source best practices.
+
+---
+
+## 📄 Compliance Measures
+
+✅ **Zero modifications** to original source files — not even a single character.  
+✅ Every new file includes a **clear GPLv2 header comment**.  
+✅ License separation is **explicitly documented** in this README.  
+✅ Original and new code are **logically and legally distinct**.
+
+---
+
+## 📁 Example GPLv2 Header (for New Files)
+
+```java
+/*
+ * Raja-Extended: Cone shape implementation
+ * Copyright (C) 2025 Murat İnan
+ *
+ * This file is part of Raja-Extended.
+ * 
+ * Raja-Extended is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+```
+
+---
+
+## 🌐 References
+
+- Paul Bourke – Raja Ray Tracer:  
+  [http://paulbourke.net/dataformats/raja/](http://paulbourke.net/dataformats/raja/)  
+- GNU GPLv2 License:  
+  [https://www.gnu.org/licenses/old-licenses/gpl-2.0.html](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)  
+- FSF on Mere Aggregation:  
+  [https://www.gnu.org/licenses/gpl-faq.html#MereAggregation](https://www.gnu.org/licenses/gpl-faq.html#MereAggregation)
+
+---
+
+## 📝 Final Note
+
+**Raja-Extended** embodies the core values of open-source collaboration:  
+> **Respect the past. Build responsibly. Share openly.**
+
+This project honors Paul Bourke’s legacy while inviting the global community to learn, contribute, and innovate — all within a clear and legally sound framework.
+
+— *Murat İnan, 2025*
+
+---
+
+### 📥 How to Use This Document
+
+1. Save this as `README.md` in your GitHub repository root.  
+2. Optionally, create a `LICENSE-NOTES.md` with the licensing section for extra clarity.  
+3. Ensure every new Java file includes the GPLv2 header above.
+
+---
+
+Bu İngilizce README, hem **profesyonel** hem de **insani bir ton** taşıyor — Paul Bourke’ye olan saygınızı yansıtırken, uluslararası geliştiricilere de net, güvenilir ve davetkar bir kapı açıyor.
+
+Projeniz hayırlı olsun! 🚀  
+Her satırınız açık kaynak ekosistemine bir katkıdır.

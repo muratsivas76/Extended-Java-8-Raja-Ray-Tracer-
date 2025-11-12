@@ -1,0 +1,314 @@
+//Cam efekti:
+World ior 1.5 seçilir; veya world ior 1.0 ve sphere ior da 1.0 seçilir ve
+plainTexture ilk üç renk 0.0; diğer iki renk ise istenilen oranda 
+şeffaf kılınır.
+####
+
+Transform order:
+RT (Rotate, translate)
+RST (Rotate, scale, translate)
+
+Camera camera = new HorizontalCamera(
+  new Point3D(0.0, 0.0, 0.0),    // Kamera orijinde
+  new Vector3D(1.0, 0.0, 0.0),   // +X yönüne bakıyor
+  1.0, 2.0, 1.5
+);
+
+Soru: Demek ki camera vektör yönüne göre xyz anlam kazanıyor.
+Evet, **tam olarak öyle**.
+
+Cevap:
+Raja'da `HorizontalCamera` sınıfı şu şekilde çalışır:
+
+### 📌 Kamera Tanımı
+```java
+new HorizontalCamera(
+  Point3D origin,        // Kamera konumu (göz noktası)
+  Vector3D direction,    // Kamera yönü (nereye baktığı)
+  double focal,          // Odak mesafesi
+  double screenWidth,    // Ekran genişliği (sanal görüntü düzleminde)
+  double screenHeight    // Ekran yüksekliği
+);
+```
+
+### 🧭 Koordinat Sistemi ve Anlamlar
+
+- **`origin`**: Kameranın bulunduğu nokta (göz).
+- **`direction`**: Kameranın baktığı yön (birim vektöre dönüştürülür).
+- **`X ekseni`**: Kameranın baktığı yöndür → **derinlik ekseni**.
+- **`Y ekseni`**: Kameranın sağa-sola yönüdür → **yatay**.
+- **`Z ekseni`**: Kameranın yukarı-aşağı yönüdür → **dikey**.
+
+> Yani:  
+> **Kamera yönüne göre koordinat sistemi tanımlanır**, ama **sahnedeki nesnelerin koordinatları sabittir**.  
+> Kamera sadece bir **gözlem noktasıdır**; dünya koordinatlarını değiştirmez.
+
+---
+
+### 🔍 Örnek Senin Ayarın:
+```java
+Camera camera = new HorizontalCamera(
+  new Point3D(0.0, 0.0, 0.0),    // Kamera orijinde
+  new Vector3D(1.0, 0.0, 0.0),   // +X'e bakıyor
+  1.0, 2.0, 1.5
+);
+```
+
+Bu durumda:
+
+- **+X**: kameranın **ileri yönü** → sahnedeki nesneler bu yönde olmalı (örneğin `Box(5, 0, 0)`).
+- **Y**: **sağa-sola** → `Y = -1` sol, `Y = +1` sağ.
+- **Z**: **yukarı-aşağı** → `Z = +1` yukarı, `Z = -1` aşağı.
+
+---
+
+### 💡 Pratik Kural:
+> Eğer kamera **+X’e bakıyorsa**, sahnedeki nesnelerin **X koordinatı pozitif** olmalı (örneğin `5.0`), yoksa kamera onlara **arkadan** bakar veya hiç görmeyebilir.
+
+Aynı şekilde:
+- Zemin düzlemi (`Plane`) **Z = 0**’da olsun ve **normali –Z** olsun → kamera onu **üstten** görür.
+- Işık **kameranın önünde ve yukarıda** olsun → nesneleri aydınlatır.
+
+---
+
+Eğer kamera yönünü değiştirirsen (örneğin `new Vector3D(0, 0, -1)` → –Z’ye bak), o zaman **derinlik ekseni Z olur**, ve nesneleri buna göre yerleştirmen gerekir.
+
+Yani:  
+✅ **Kamera yönü, sahne kurulumunu doğrudan etkiler.**  
+✅ **Nesneleri kameranın baktığı yönde (+X) yerleştir.**  
+✅ **Zemin için Z = 0, normal = (0,0,-1).**
+
+Raja'nın material sistemindeki bu değişkenleri detaylı açıklıyorum:
+
+## 🔍 **Material Parameterları:**
+
+### **kd - Diffuse Coefficient (Yayılım Katsayısı)**
+```java
+RGB kd = new RGB(0.8, 0.2, 0.2);  // Kırmızı yüzey
+```
+- **Ne işe yarar:** Yüzeyin ana rengi/deseni
+- **Değer aralığı:** `0.0 - 1.0`
+- **Örnekler:**
+  - `kd = 0.9` → Parlak, canlı renk
+  - `kd = 0.3` → Koyu, mat renk  
+  - `kd = 0.0` → Siyah (ışık yansımaz)
+
+### **kr - Reflection Coefficient (Yansıma Katsayısı)**
+```java
+RGB kr = new RGB(0.5, 0.5, 0.5);  // Gri yansıma
+```
+- **Ne işe yarar:** Ayna/metal yansıması şiddeti
+- **Değer aralığı:** `0.0 - 1.0`
+- **Örnekler:**
+  - `kr = 0.9` → Ayna gibi yansıtıcı
+  - `kr = 0.3` → Hafif yansımalı
+  - `kr = 0.0` → Yansıma YOK
+
+### **kt - Transmission Coefficient (Işık Geçirgenlik)**
+```java
+RGB kt = new RGB(0.7, 0.7, 0.7);  // %70 transparan
+```
+- **Ne işe yarar:** Cam/şeffaf malzeme geçirgenliği
+- **Değer aralığı:** `0.0 - 1.0`
+- **Örnekler:**
+  - `kt = 0.9` → Cam gibi şeffaf
+  - `kt = 0.3` → Buz gibi yarı şeffaf
+  - `kt = 0.0` → Tamamen opak
+
+### **ns - Shininess (Parlaklık/Yansıma Keskinliği)**
+```java
+int ns = 500;  // Yüksek parlaklık
+```
+- **Ne işe yarar:** Specular highlight'ın keskinliği
+- **Değer aralığı:** `1 - 1000+`
+- **Örnekler:**
+  - `ns = 1000` → Metal (keskin parlaklık)
+  - `ns = 200` → Plastik (yumuşak parlaklık)
+  - `ns = 10` → Tahta (çok yumuşak)
+
+### **nt - Refraction Index (Kırılma İndeksi)**
+```java
+int nt = 10;  // Kırılma kalitesi
+```
+- **Ne işe yarar:** Transparency kalitesi/derinliği
+- **Değer aralığı:** `1 - 50+`
+- **Örnekler:**
+  - `nt = 1` → Basit transparency
+  - `nt = 10` → Kaliteli kırılma
+  - `nt = 50` → Çok detaylı kırılma
+
+## 🎨 **Gerçek Dünya Örnekleri:**
+
+// ALTIN METAL
+new LocalTexture(
+    new RGB(0.9, 0.7, 0.1),  // kd - altın rengi
+    new RGB(0.8, 0.6, 0.1),  // kr - yüksek yansıma  
+    new RGB(0.0, 0.0, 0.0),  // kt = 0 - opak
+    800, 1                    // ns yüksek, nt düşük
+);
+
+// CAM  
+new LocalTexture(
+    new RGB(0.1, 0.1, 0.1),  // kd - düşük (cam renksiz)
+    new RGB(0.1, 0.1, 0.1),  // kr - düşük yansıma
+    new RGB(0.9, 0.9, 0.9),  // kt = 0.9 - şeffaf
+    300, 20                   // ns orta, nt yüksek
+);
+
+// PLASTİK
+new LocalTexture(
+    new RGB(0.8, 0.2, 0.2),  // kd - canlı kırmızı
+    new RGB(0.3, 0.3, 0.3),  // kr - orta yansıma
+    new RGB(0.0, 0.0, 0.0),  // kt = 0 - opak  
+    200, 1                    // ns düşük, nt düşük
+);
+###########
+**IsotropicVolume** tam olarak şu işe yarıyor:
+
+## IsotropicVolume - İç Hacim Efektleri
+
+new IsotropicVolume(1.0)  // density = 1.0
+
+**Ne iş yapar:**
+- 🔥 **Volume scattering** - ışığın hacim içinde dağılması
+- 💨 **Fog/mist efekti** - mesafeye göre opaklık
+- 🌫️ **Havada asılı partiküller** - toz, duman, buhar
+- 🔍 **İçinden geçen ışınları** - absorbe etme veya saçılma
+
+**Parametreler:**
+- `density = 1.0` → **Yüksek yoğunluk** = daha opak, daha fazla saçılma
+- `density = 0.1` → **Düşük yoğunluk** = daha transparan, az saçılma  
+- `density = 0.0` → **Volume kapalı** = normal render
+
+## Örnek Kullanımlar:
+
+// SİS efekti - orta yoğunluk
+new IsotropicVolume(0.3)
+
+// YOĞUN DUMAN - yüksek yoğunluk  
+new IsotropicVolume(0.8)
+
+// HAFİF HAVA - çok düşük yoğunluk
+new IsotropicVolume(0.05)
+
+// VOLUME KAPALI - normal render
+new IsotropicVolume(0.0)
+// veya
+null
+
+
+## Refraction vs Volume Farkı:
+
+- **Refraction** → Işının **katı yüzeyden** kırılması (cam, su)
+- **Volume** → Işının **hacim içinde** saçılması (sis, duman, su)
+
+#########
+**Volume ile kd/kr/kt değerleri çakışıyor**.
+
+## Problem:
+
+- **Volume** → ışık saçılması/sönümlemesi
+- **kd/kr/kt** → yüzey materyal özellikleri  
+- **İkisi birlikte** → conflict oluyor
+
+## Çözüm:
+
+### 1. **Volume KULLANMAK İstiyorsan** (sis/duman efekti):
+// kt = 0 YAP - transparency OLMASIN
+LocalTexture texture = new LocalTexture(
+    kd,           // diffuse color
+    kr,           // reflection  
+    new RGB(0,0,0), // kt = 0 - TRANSPARENCY YOK
+    ns, nt
+);
+
+// Sonra volume ekle
+sphereMaterialSolid = new BasicSolid(materialSphere, new IsotropicVolume(0.3));
+
+### 2. **Transparency KULLANMAK İstiyorsan** (cam/şeffaf materyal):
+// kt AYARLA - transparency OLSUN
+LocalTexture texture = new LocalTexture(
+    kd,           // diffuse color
+    kr,           // reflection
+    new RGB(0.8,0.8,0.8), // kt = 0.8 - YÜKSEK TRANSPARENCY
+    ns, nt
+);
+
+// Volume KULLANMA - null yap
+sphereMaterialSolid = new BasicSolid(materialSphere, null);
+
+### 3. **Anodized Metal için DOĞRU Ayarlar**:
+// Metal = YÜKSEK reflection, DÜŞÜK transparency
+LocalTexture texture = new LocalTexture(
+    baseColor,                    // kd
+    baseColor.multiply(0.8),      // kr - yüksek reflection  
+    new RGB(0,0,0),               // kt = 0 - transparency YOK
+    500, 1                        // ns, nt
+);
+
+// Volume KULLANMA - metal sisli olmaz!
+sphereMaterialSolid = new BasicSolid(materialSphere, null);
+
+
+**Kural:** Volume VE transparency aynı anda çalışmaz - birini seç! 🔥
+
+############
+Harika bir soru abi! Transparan sphere için Raja'nın fizik tabanlı render sistemini anlamak gerekiyor. Örnekteki değerlere bakarak şu formülü çıkardım:
+
+## Transparan Sphere için Optimum Ayarlar:
+
+**Material Seçimi:** `PlainTexture` kullan
+
+**LocalTexture Değerleri:**
+```
+kd = 0.0 0.0 0.0        # Diffuse rengi sıfır (ışığı dağıtmaz)
+krl = 0.0 0.0 0.0       # Local reflection sıfır  
+krg = 0.0 0.0 0.0       # Global reflection sıfır
+ktl = 0.8 0.8 0.8       # Local transmission YÜKSEK (şeffaflık)
+ktg = 0.8 0.8 0.8       # Global transmission YÜKSEK
+ns = 100                # Shinyness YÜKSEK (cam gibi)
+nt = 0                  # Texture için 0
+```
+
+**Volume Ayarları:**
+```
+volume = IsotropicVolume { 1.5 }  # IOR (Index of Refraction) - Cam için 1.5
+```
+
+## GUI'de Manuel Gireceğin Değerler:
+
+**Material kısmında:**
+```
+raja.shape.PlainTexture {
+    localTexture = raja.shape.LocalTexture {
+        kd = 0.0 0.0 0.0
+        krl = 0.0 0.0 0.0  
+        krg = 0.0 0.0 0.0
+        ktl = 0.8 0.8 0.8
+        ktg = 0.8 0.8 0.8
+        ns = 100
+        nt = 0
+    }
+}
+```
+
+**Solid kısmında:**
+```
+volume = raja.shape.IsotropicVolume { 1.5 }
+```
+
+## Önemli Noktalar:
+
+1. **ktl/ktg** değerleri ne kadar yüksekse o kadar şeffaf (0.0-1.0 arası)
+2. **kd** sıfıra yakın olmalı ki obje kendi rengini göstermesin
+3. **krl/krg** sıfıra yakın olmalı ki yansıma olmasın  
+4. **ns** yüksek olmalı ki cam gibi pürüzsüz görünsün
+5. **Volume IOR** cam için 1.5, su için 1.33, elmas için 2.42
+
+**Test için:** ktl=0.9, ktg=0.9, IOR=1.5 ile başla, sonra ince ayar yap!
+
+Bu ayarlarla cam gibi transparan sphere'ler elde edebilirsin. 🎯
+############
+grep -rni --include="*.java" "this\.exampleString = null;" src
+(src ve alt dizinlerdeki java dosyalarında "...example...=null" satırının
+olup olmadığını, varsa satır no'su ile gösterir.)

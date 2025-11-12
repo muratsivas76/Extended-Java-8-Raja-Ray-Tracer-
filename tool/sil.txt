@@ -1,0 +1,74 @@
+	// ADDED by Murat Inan
+	@Override
+	public String getUsageInformation() {
+		//TransparentPNGMaterial(BufferedImage texture, double uOffset, double vOffset, double uScale, double vScale, boolean isRepeatTexture)
+		//null,  0.0,  0.0,  0.0,  0.0,  true
+		String TRANSPARENTPNGMATERİAL_STR="Constructor is: TransparentPNGMaterial(BufferedImage texture, double uOffset, double vOffset, double uScale, double vScale, boolean isRepeatTexture);\nExample:\nnull,  0.0,  0.0,  0.0,  0.0,  true\n-1 returns empty constructor.\nEnter your values after three diyez symbol\n###\n";
+		return TRANSPARENTPNGMATERİAL_STR;
+	}
+
+	@Override
+    public Texture getInstance(String info) {
+		Texture texture = null;
+		
+		String str = info.trim();
+		
+		int diyezIndex = str.lastIndexOf("###");
+		if (diyezIndex < 0) return texture;
+		
+		str = str.substring(diyezIndex+3);	
+		str = str.replaceAll("\n", "");
+		str = str.replaceAll(" ", "");
+		
+		if (str.equals("-1")) return new TransparentPNGMaterial();
+		
+		String [] split = str.split (",");
+		if (split == null) return texture;
+
+		//TransparentPNGMaterial(BufferedImage texture, double uOffset, double vOffset, double uScale, double vScale, boolean isRepeatTexture)
+		//null,  0.0,  0.0,  0.0,  0.0,  true
+		try {
+			Object texture = null; // BufferedImage tipi manual handle edilmeli
+			double uOffset = Double.parseDouble(split[1]);
+			double vOffset = Double.parseDouble(split[2]);
+			double uScale = Double.parseDouble(split[3]);
+			double vScale = Double.parseDouble(split[4]);
+			boolean isRepeatTexture = Boolean.parseBoolean(split[5]);
+
+			texture = new TransparentPNGMaterial(
+				texture, uOffset, vOffset, 
+				uScale, vScale, isRepeatTexture);
+			return texture;
+		} catch (NumberFormatException nfe) {
+			nfe.printStackTrace();
+			return null;
+		}
+	}
+	////////////////
+
+	// toString metodu - Box formatında
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("TransparentPNGMaterial {");
+		sb.append("\\n    texture = ");
+		sb.append(this.texture);
+		sb.append(";");
+		sb.append("\\n    uOffset = ");
+		sb.append(this.uOffset);
+		sb.append(";");
+		sb.append("\\n    vOffset = ");
+		sb.append(this.vOffset);
+		sb.append(";");
+		sb.append("\\n    uScale = ");
+		sb.append(this.uScale);
+		sb.append(";");
+		sb.append("\\n    vScale = ");
+		sb.append(this.vScale);
+		sb.append(";");
+		sb.append("\\n    isRepeatTexture = ");
+		sb.append(this.isRepeatTexture);
+		sb.append(";");
+		sb.append("\\n};");
+		return sb.toString();
+	}

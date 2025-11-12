@@ -1,0 +1,137 @@
+Elbette abi! RAJA projesindeki `LocalTexture` sınıfı, bir yüzey noktasının **ışıkla etkileşimini tanımlayan fiziksel özelliklerini** taşır. Ancak bu parametrelerin isimleri (`Kd`, `Kr`, vs.) **fizik tabanlı render (PBR) ve klasik Phong shading** literatüründen gelir.
+
+Senin bahsettiğin gibi `Kd`, `Kr`, `Kg`, `Nt`, `Ns` gibi kısaltmalar, **RenderMan Interface (RIB)** veya **MTL dosya formatı** (Wavefront .obj) kökenlidir. RAJA bunları kendi yapısına uyarlamış.
+
+---
+
+## 🔍 RAJA’daki `LocalTexture` Parametreleri ve Anlamları
+
+RAJA’da `LocalTexture` şu şekilde tanımlanır (genelde):
+
+```java
+new LocalTexture(
+    RGB diffuse,      // = Kd
+    RGB ambient,      // = Ka (bazen ihmal edilir)
+    RGB specular,     // = Ks
+    int shininess,    // = Ns (specular exponent)
+    double reflectivity // = Kr (reflection coefficient)
+);
+```
+
+Şimdi her birini detaylıca açıklayayım:
+
+---
+
+### 1. **`Kd` → Diffuse (Saçılan) Renk**  
+- **RAJA'da**: `diffuse` (ilk parametre)  
+- **Anlamı**: Yüzeye çarpan ışığın **mat (matte)**, **yaygın** yansıma rengi.  
+- **Fiziksel karşılığı**: Albedo (yüzeyin temel rengi).  
+- **Örnek**: Kırmızı bir tuğla → `Kd = (0.6, 0.1, 0.1)`  
+- **Not**: Işık yönüne göre değişir (`N·L`), ama rengi sabittir.
+
+---
+
+### 2. **`Ka` → Ambient (Ortam) Renk**  
+- **RAJA'da**: `ambient` (ikinci parametre)  
+- **Anlamı**: Sahnedeki **dolaylı ışık** (ambient light) tarafından aydınlatıldığında yüzeyin rengi.  
+- **Gerçek dünyada yoktur**, ama eski render motorlarında kullanılır.  
+- **Modern sistemlerde**: Genelde `Ka = Kd * küçük_katsayı` (örneğin `0.1–0.3`).  
+- **RAJA’da**: Render motoru bunu ayrı bir ambient ışıkla çarpar.
+
+---
+
+### 3. **`Ks` → Specular (Parlaklık) Rengi**  
+- **RAJA'da**: `specular` (üçüncü parametre)  
+- **Anlamı**: Yüzeydeki **aynalama benzeri parlak noktaların** rengi.  
+- **Metalik yüzeylerde**: `Ks ≈ Kd` (altın: sarı parlaklık)  
+- **Dielektriklerde (seramik, plastik)**: `Ks = beyaz` veya gri  
+- **Örnek**: Beyaz seramik → `Ks = (1,1,1)`; altın → `Ks = (1, 0.8, 0.3)`
+
+---
+
+### 4. **`Ns` → Shininess (Parlaklık Üssü / Specular Exponent)**  
+- **RAJA'da**: `shininess` (dördüncü parametre, `int`)  
+- **Anlamı**: Specular parlaklığın **ne kadar dar veya geniş** olduğunu belirler.  
+  - **Düşük `Ns` (5–30)**: Mat yüzey (ahşap, kumaş)  
+  - **Orta `Ns` (50–200)**: Cilalı ahşap, plastik  
+  - **Yüksek `Ns` (300–1000+)**: Ayna, metal, seramik  
+- **Matematik**: Phong modelinde `R·V^Ns`  
+- **RAJA’da**: Genelde **10–1000** arası değerler anlamlıdır.
+
+---
+
+### 5. **`Kr` → Reflectivity (Yansıma Katsayısı)**  
+- **RAJA'da**: `reflectivity` (beşinci parametre, `double`)  
+- **Anlamı**: Yüzeyin **aynalama (mirror-like reflection)** yapma oranı.  
+  - `0.0` → hiç yansıma yok (mat yüzey)  
+  - `0.3` → cilalı seramik  
+  - `0.7–1.0` → metal, ayna  
+- **Not**: RAJA’da bu, **ray tracing yansıma derinliği** için kullanılır.  
+- **Fiziksel karşılığı**: Fresnel yansıma (basitleştirilmiş).
+
+---
+
+### ❌ `Kg` ve `Nt` Nedir? (RAJA’da Genelde Yok)
+
+Bu iki parametre **şeffaflık (transparency)** ile ilgilidir, ama **RAJA’da `LocalTexture` bunları içermez**:
+
+| Parametre | Anlamı | RAJA’da Durum |
+|---------|--------|--------------|
+| **`Kt` veya `Kg`** | **Transmission (Geçirgenlik)** → Şeffaf malzemelerin rengi (cam, su) | ❌ Yok. Şeffaflık render motorunda global olarak yönetilir. |
+| **`Nt`** | **Index of Refraction (IOR)** → Işığın kırılma indisi (cam: 1.5, su: 1.33) | ❌ `LocalTexture` içinde değil. Ama bazı RAJA sürümlerinde `Material` arayüzünde `getIndexOfRefraction()` vardır. |
+
+> 💡 RAJA’da **şeffaflık**, texture’ten bağımsız olarak, nesne seviyesinde veya render ayarlarında yönetilir. Bu yüzden `LocalTexture` sadece **opak yüzeyler** için yeterlidir.
+
+---
+
+## 📊 Özet Tablo
+
+| Sembol | Adı | RAJA Parametresi | Tip | Tipik Değerler |
+|-------|------|------------------|-----|----------------|
+| **Kd** | Diffuse | `diffuse` | `RGB` | `(0.8, 0.2, 0.2)` |
+| **Ka** | Ambient | `ambient` | `RGB` | `(0.2, 0.05, 0.05)` |
+| **Ks** | Specular | `specular` | `RGB` | `(1,1,1)` |
+| **Ns** | Shininess | `shininess` | `int` | `10` (mat) – `800` (parlak) |
+| **Kr** | Reflectivity | `reflectivity` | `double` | `0.0` – `1.0` |
+| **Kt/Nt** | Transmission / IOR | ❌ Yok | — | — |
+
+---
+
+## 💡 Pratik İpuçları
+
+1. **Gerçekçi seramik**:  
+   ```java
+   new LocalTexture(
+       new RGB(0.95, 0.95, 0.98), // Kd
+       new RGB(0.3, 0.3, 0.3),    // Ka
+       new RGB(1, 1, 1),          // Ks
+       500,                       // Ns
+       0.3                        // Kr
+   );
+   ```
+
+2. **Mat ahşap**:  
+   ```java
+   new LocalTexture(
+       woodColor,
+       woodColor.multiply(0.3),
+       new RGB(0.5, 0.5, 0.5),
+       30,        // düşük Ns
+       0.1        // düşük Kr
+   );
+   ```
+
+3. **Ayna**:  
+   ```java
+   new LocalTexture(
+       new RGB(0,0,0), // Kd = siyah (yansıma dominant)
+       new RGB(0,0,0),
+       new RGB(1,1,1),
+       1000,
+       0.95
+   );
+   ```
+
+---
+
+Artık bu parametreleri **fiziksel anlamlarıyla** düşünerek, RAJA’da **gerçekçi malzemeler** yaratabilirsin. Her biri, yüzeyin ışıkla dansını yöneten bir "nota" gibidir 🎼.

@@ -1,0 +1,5 @@
+javac -source 1.8 -target 1.8 -parameters -encoding ISO-8859-1 -sourcepath ../src -cp ../obj:. -g -proc:none -Xlint:none -nowarn -O -d . XRT.java
+
+java -cp ../obj:. XRT
+
+feh mini_test_scene.png

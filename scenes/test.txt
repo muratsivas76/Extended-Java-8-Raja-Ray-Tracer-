@@ -1,0 +1,38 @@
+Width: 800
+Height: 600
+Depth: 3
+Volume: 1.0
+
+BGColor: 0.0, 0.0, 0.7
+Ambiant/Shadow Color: 0.1, 0.1, 0.1
+
+raja.renderer.HorizontalCamera (@raja.renderer.HorizontalCamera_33772bc) {
+        origin = raja.Point3D (@raja.Point3D_5c38c8a1) { -3.0 ; 0.0 ; 0.0 }
+        direction = raja.Vector3D (@raja.Vector3D_6c34e823) { 1.0 ; 0.0 ; 0.0 }
+        focal = 1.8
+        screenWidth = 2.0
+        screenHeight = 1.5
+}
+
+/** STARTS LIGHTS: */
+raja.light.PointLightSource (@raja.light.PointLightSource_3c2f809f) {
+        origin = raja.Point3D (@raja.Point3D_435b734) { -5.0 ; 0.0 ; 5.0 }
+        light = raja.RGB (@raja.RGB_1e521ad3) { 1.0 ; 1.0 ; 1.0 }
+}
+
+/** ENDS LIGHTS */
+
+/** STARTS GEOMETRIES/SHAPES/FORMS */
+raja.shape.BasicTexturedForm (@raja.shape.BasicTexturedForm_556c8cca) {
+        form = raja.shape.MSphere (@raja.shape.MSphere_7690284e) {
+                radius = 1.0
+        }
+        texture = raja.material.LambertianTexture (@raja.material.LambertianTexture_20e6aa3) {
+                albedo = raja.RGB (@raja.RGB_1507c580) { 0.7 ; 0.7 ; 0.7 }
+        }
+        transform = raja.Matrix4 (@raja.Matrix4_3ca24c03) { 0.8660254037844387 ; -0.024429647691750673 ; -0.4996954135095478 ; 1.0 ; 0.0 ; 1.399147157826734 ; -0.03489949670250097 ; 0.5 ; 0.49999999999999994 ; 0.04231339101311992 ; 0.8654978445076765 ; 0.0 ; 0.0 ; 0.0 ; 0.0 ; 1.0 }
+}
+// translate(1.0, 0.5, 0.0) * rotate(2.0, -30.0, 0.0) * scale(1.0, 1.4, 1.0);
+
+-----------------
+END
